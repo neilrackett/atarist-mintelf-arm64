@@ -1,0 +1,44 @@
+name: Build
+
+# Run by hand: builds the packages on a native arm64 runner (under QEMU,
+# gcc alone would take hours) and keeps them as a workflow artifact. With a
+# release tag, also publishes them as that release, e.g. noble-13.3.0-1:
+# the Ubuntu series, the gcc version, and a build number for rebuilds.
+on:
+  workflow_dispatch:
+    inputs:
+      series:
+        description: Ubuntu series to build for
+        default: noble
+      release:
+        description: Release tag to publish (leave empty to only build)
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build in a clean Ubuntu container
+        run: |
+          case "${{ inputs.series }}" in
+            noble) image=ubuntu:24.04 ;;
+            *) image=ubuntu:${{ inputs.series }} ;;
+          esac
+          docker run --rm -v "$PWD:/work" -w /work "$image" ./build.sh "${{ inputs.series }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m68k-atari-mintelf-${{ inputs.series }}-arm64
+          path: out/
+      - name: Publish the release
+        if: inputs.release != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ inputs.release }}" out/* \
+            --title "m68k-atari-mintelf for Ubuntu ${{ inputs.series }} arm64 (${{ inputs.release }})" \
+            --notes-file notes.md
