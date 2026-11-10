@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 180
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build in a clean Ubuntu container
         run: |
           case "${{ inputs.series }}" in
@@ -30,7 +30,7 @@ jobs:
             *) image=ubuntu:${{ inputs.series }} ;;
           esac
           docker run --rm -v "$PWD:/work" -w /work "$image" ./build.sh "${{ inputs.series }}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: m68k-atari-mintelf-${{ inputs.series }}-arm64
           path: out/
