@@ -28,6 +28,11 @@ example `noble-13.3.0-1`, and holds:
   `.buildinfo`
 - `SHA256SUMS`
 
+GitHub turns the `~` in the PPA's version numbers into a `.` in asset
+names (`…1ppa20240529195026.noble_arm64.deb`), and `SHA256SUMS` uses the
+names as published. apt reads a package's real name and version from inside
+it.
+
 ## Using them
 
 On Ubuntu for arm64, add the PPA for the libraries the packages depend on,
@@ -37,9 +42,9 @@ not only against the release's own `SHA256SUMS`:
 ```sh
 add-apt-repository -y ppa:vriviere/mintelf && apt-get -y update
 R=https://github.com/neilrackett/atarist-mintelf-arm64/releases/download/noble-13.3.0-1
-for f in binutils-m68k-atari-mintelf_..._arm64.deb mintbin-..._arm64.deb gcc-..._arm64.deb; do
-  curl -fsSLO "$R/$f"
-done
+curl -fsSLO "$R/binutils-m68k-atari-mintelf_2.42-mintelf-20240218-1ppa20250527093812.noble_arm64.deb"
+curl -fsSLO "$R/mintbin-m68k-atari-mintelf_0.3-Git-20250709-1ppa20251012230441.noble_arm64.deb"
+curl -fsSLO "$R/gcc-m68k-atari-mintelf_13.3.0-mintelf-20240529-1ppa20240529195026.noble_arm64.deb"
 sha256sum -c expected.sha256       # your recorded checksums
 apt-get -y install ./*.deb cross-mintelf-essential
 ```

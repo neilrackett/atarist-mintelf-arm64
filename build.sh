@@ -40,6 +40,12 @@ done
 mv ./*.deb ./*.dsc ./*.tar.* ./*.buildinfo "$TOP/out/"
 
 cd "$TOP/out"
+# GitHub renames a release asset's ~ (in the PPA's versions) to a dot:
+# rename them here, so SHA256SUMS names the files as they're published
+shopt -s nullglob
+for f in *~*; do
+  mv -- "$f" "${f//\~/.}"
+done
 sha256sum -- * > SHA256SUMS
 {
   echo "Built for Ubuntu $SERIES ($(dpkg --print-architecture)) from ppa:vriviere/mintelf's source packages:"
